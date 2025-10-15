@@ -1,10 +1,8 @@
-import Layout from './components/Layout';
-import styles from "./page.module.css";
+
 
 export default function Home() {
   return (
-    <Layout>
-      <div className={styles.content}>
+    <div className={styles.content}>
         <div className={styles.block}>
           <h2>ML Stock Recommendations</h2>
           <p>Predicted buy/sell opportunities based on ML models.</p>
@@ -26,6 +24,6 @@ export default function Home() {
           <p>Latest stock market and company news updates.</p>
         </div>
       </div>
-    </Layout>
-  );
+
+  )
 }

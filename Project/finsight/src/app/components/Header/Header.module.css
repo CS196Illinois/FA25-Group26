@@ -24,7 +24,18 @@
 
 .searchBar {
     margin-left: 5rem;
+    width: 400px;
 }
+
+/* Make the input show a permanent outline (visible even when not focused) */
+.searchBar input {
+    outline: 2px solid #9191E9; 
+    border-radius: 1px;
+    padding: 3px 4px;
+    background: transparent;
+    color: inherit;
+}
+
 
 .logo {
     margin-left: auto;

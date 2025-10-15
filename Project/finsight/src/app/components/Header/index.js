@@ -4,8 +4,8 @@ export default function Header() {
     return (
         <header className={styles.header}>
             <div className={styles.container}>
-                <div className={styles.logo}>
-                    <h1>FinSight Logo</h1>
+                <div className={styles.website}>
+                    <h1>FinSight</h1>
                 </div>
 
                 <nav className={styles.nav}>
