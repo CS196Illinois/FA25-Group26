@@ -1,7 +1,9 @@
+import styles from './Dashboard.module.css';
 
-
-export default function Home() {
+export default function Dashboard() {
   return (
+
+
     <div className={styles.content}>
         <div className={styles.block}>
           <h2>ML Stock Recommendations</h2>
