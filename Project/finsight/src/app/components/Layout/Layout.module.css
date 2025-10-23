@@ -4,19 +4,9 @@
   height: 100vh;
 }
 
-/*.column_left {
-  flex: 1;
-  background-color: #f0f0f0;
-  padding: 20px;
-} */
-
 .column_middle {
   flex: 1;
   padding: 20px;
 }
 
-/*.column_right {
-  flex: 1;
-  background-color: #f0f0f0;
-  padding: 20px;
-} */
+

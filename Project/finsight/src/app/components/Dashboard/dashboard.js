@@ -1,4 +1,9 @@
 import styles from './Dashboard.module.css';
+import MLStockRecommendations from '../Blocks/MLStockRecommendations';
+import IndexPerformance from '../Blocks/IndexPerformance';
+import PortfolioPerformance from '../Blocks/PortfolioPerformance';
+import SentimentSignals from '../Blocks/SentimentSignals';
+import NewsFeed from '../Blocks/NewsFeed';
 
 export default function Dashboard() {
   return (
@@ -6,24 +11,19 @@ export default function Dashboard() {
 
     <div className={styles.content}>
         <div className={styles.block}>
-          <h2>ML Stock Recommendations</h2>
-          <p>Predicted buy/sell opportunities based on ML models.</p>
+          <MLStockRecommendations />
         </div>
         <div className={styles.block}>
-          <h2>Index Performance</h2>
-          <p>Performance overview for S&P 500, Nasdaq, and Dow Jones.</p>
+          <IndexPerformance />
         </div>
         <div className={styles.block}>
-          <h2>Portfolio Performance</h2>
-          <p>Your portfolio's gains/losses and historical trend charts.</p>
+          <PortfolioPerformance />
         </div>
         <div className={styles.block}>
-          <h2>Sentiment Signals</h2>
-          <p>Market sentiment analysis based on social and news data.</p>
+          <SentimentSignals />
         </div>
         <div className={styles.block}>
-          <h2>News Feed</h2>
-          <p>Latest stock market and company news updates.</p>
+          <NewsFeed />
         </div>
       </div>
 
