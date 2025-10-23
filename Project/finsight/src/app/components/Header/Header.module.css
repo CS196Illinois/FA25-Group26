@@ -1,42 +1,65 @@
 .header {
-    background-color: #1C1D21;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    position: sticky;
-    top: 0;
-    z-index: 100;
+  background-color: #121212;
+  color: white;
+  padding: 16px 32px;
+  border-bottom: 1px solid #333;
+  position: sticky; /* optional: keeps header fixed at top */
+  top: 0;
+  z-index: 1000;
 }
 
+/* Flex container for everything inside the header */
 .container {
-    max-width: 1420px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;      /* vertically center all elements */
+  justify-content: space-between; /* space out left and right sides */
+  gap: 24px;                /* small spacing between groups */
 }
 
-.websiteName {
-    margin-left: 0rem;
+/* Left side title */
+.website h1 {
+  font-size: 1.8rem;
+  margin: 0;
 }
 
+/* Navigation section */
 .nav {
-    margin-left: 3rem;
+  display: flex;
+  gap: 24px;               /* space between nav links */
+  flex: 1;                 /* allow nav to expand */
+  justify-content: center; /* center the nav section */
 }
 
-.searchBar {
-    margin-left: 5rem;
-    width: 400px;
+.nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
 }
 
-/* Make the input show a permanent outline (visible even when not focused) */
+.nav a:hover {
+  color: #00b4d8;
+}
+
+/* Search bar styling */
 .searchBar input {
-    outline: 2px solid #9191E9; 
-    border-radius: 1px;
-    padding: 3px 4px;
-    background: transparent;
-    color: inherit;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  background-color: #1e1e1e;
+  color: white;
+  width: 180px;
 }
 
+.searchBar input::placeholder {
+  color: #aaa;
+}
 
+/* Right side logo */
 .logo {
-    margin-left: auto;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #bbb;
 }
+
