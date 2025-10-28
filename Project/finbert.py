@@ -64,3 +64,21 @@ else:
 
 print(f'Overall sentiment: {sentiment_label} ({final_score:.4f})')
 print(f'Articles analyzed: {num_article}')
+# Generate investment recommendation based on sentiment
+if sentiment_label == "Positive":
+    recommendation = "Consider investing in this company."
+    rationale = (f"The analyzed news articles show a generally positive sentiment "
+                 f"({final_score:.2f}) across {num_article} articles mentioning '{keyword}'.")
+elif sentiment_label == "Negative":
+    recommendation = "Consider avoiding investment in this company for now."
+    rationale = (f"The analyzed news articles show a generally negative sentiment "
+                 f"({final_score:.2f}) across {num_article} articles mentioning '{keyword}'.")
+else:  # Neutral
+    recommendation = "Hold or wait for more information before investing."
+    rationale = (f"The analyzed news articles show a neutral sentiment "
+                 f"({final_score:.2f}) across {num_article} articles mentioning '{keyword}'. "
+                 f"More information or time may be needed to make a confident decision.")
+
+print("\nInvestment Recommendation:")
+print(f"Recommendation: {recommendation}")
+print(f"Rationale: {rationale}")
