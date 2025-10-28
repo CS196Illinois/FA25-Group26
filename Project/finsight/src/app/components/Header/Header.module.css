@@ -24,7 +24,9 @@
   margin: 0;
 }
 
-
+.website:hover {
+  color: #9191E9;
+}
 
 .nav {
   display: flex;

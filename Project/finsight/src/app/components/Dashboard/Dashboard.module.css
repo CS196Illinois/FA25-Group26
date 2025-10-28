@@ -33,6 +33,10 @@
   text-align: center;
 }
 
+.block h2:hover {
+  color: #9191E9;
+}
+
 .block p {
   color: #666;
   margin-bottom: 0;
