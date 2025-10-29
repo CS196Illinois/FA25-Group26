@@ -16,19 +16,25 @@
   gap: 24px;                /* small spacing between groups */
 }
 
-/* Left side title */
+
+
 .website h1 {
   font-size: 1.8rem;
   margin: 0;
 }
 
+.website:hover {
+  color: #9191E9;
+}
+
 /* Navigation section */
 .nav {
   display: flex;
-  gap: 24px;               /* space between nav links */
-  flex: 1;                 /* allow nav to expand */
-  justify-content: center; /* center the nav section */
+  gap: 24px;               
+  flex: 1;                 
+  justify-content: center; 
 }
+
 
 .nav a {
   color: white;
@@ -37,11 +43,12 @@
   transition: color 0.3s ease;
 }
 
+
 .nav a:hover {
-  color: #00b4d8;
+  color: #9191E9;
 }
 
-/* Search bar styling */
+
 .searchBar input {
   padding: 8px 12px;
   border-radius: 6px;
@@ -50,6 +57,11 @@
   background-color: #1e1e1e;
   color: white;
   width: 180px;
+}
+
+
+.searchBar input::placeholder {
+  color: #aaa;
 }
 
 .searchBar input::placeholder {
@@ -62,4 +74,3 @@
   font-weight: 500;
   color: #bbb;
 }
-

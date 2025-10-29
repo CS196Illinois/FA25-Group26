@@ -9,8 +9,7 @@ export default function Header() {
                 </div>
 
                 <nav className={styles.nav}>
-                    <a href="/">Home</a>
-                    <a href="/about">About</a>
+                    <a href="/About">About</a>
                     <a href="/portfolio-tracker">Portfolio Tracker</a>
                     <a href="/model-insights">Model Insights</a>
                 </nav>
