@@ -1,20 +1,20 @@
 .header {
-  background-color: #121212;
+  background-color: #0a0a0a;
+  transition: background-color 0.3s ease;
   color: white;
   padding: 16px 32px;
   border-bottom: 1px solid #333;
-  position: sticky; /* optional: keeps header fixed at top */
+  position: sticky; 
   top: 0;
   z-index: 1000;
 }
 
-
 /* Flex container for everything inside the header */
 .container {
   display: flex;
-  align-items: center;      /* vertically center all elements */
-  justify-content: space-between; /* space out left and right sides */
-  gap: 24px;                /* small spacing between groups */
+  align-items: center;     
+  justify-content: space-between;
+  gap: 24px;            
 }
 
 
@@ -28,6 +28,7 @@
   color: #9191E9;
 }
 
+/* Navigation section */
 .nav {
   display: flex;
   gap: 24px;               
@@ -64,7 +65,11 @@
   color: #aaa;
 }
 
+.searchBar input::placeholder {
+  color: #aaa;
+}
 
+/* Right side logo */
 .logo {
   font-size: 1rem;
   font-weight: 500;
