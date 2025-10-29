@@ -1,7 +1,16 @@
+.title {
+    color: white;
+    font-size: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #9191E9;
+}
+
 .newsList {
     display: flex;
     flex-direction: column;
     gap: 24px;
+
   }
   
   .newsItem {
@@ -29,7 +38,7 @@
     color: #ffffff;
   }
   
-    .bullish {
+  .bullish {
     color: #4CAF50;
   }
   

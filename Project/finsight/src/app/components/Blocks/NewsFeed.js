@@ -42,7 +42,7 @@ export default function NewsFeed() {
     return (
       <>
         
-        <h2>News Feed</h2>
+        <h2 className ={styles.title} >News Feed</h2>
   
         <div className={styles.newsList}>
           
