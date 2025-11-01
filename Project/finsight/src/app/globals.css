@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap');
+
 :root {
   --background: #000000;
   --foreground: #171717;
@@ -16,10 +18,18 @@ body {
   overflow-x: hidden;
 }
 
+html,
+body,
+button,
+input,
+textarea,
+select {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
