@@ -28,6 +28,13 @@ const mockNewsData = [
     sentiment: "Mixed",
     source: "Reuters",
     timestamp: "45 sec ago"
+  },
+  {
+    id: 5,
+    headline: "example",
+    sentiment: "Mixed",
+    source: "Reuters",
+    timestamp: "45 sec ago"
   }
 ];
 
