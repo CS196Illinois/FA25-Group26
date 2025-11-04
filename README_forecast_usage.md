@@ -1,4 +1,4 @@
-# 📘 Usage Guide
+#  Usage Guide
 
 ## Step 1: Forecast and Print Buy/Hold Recommendation
 ```bash
