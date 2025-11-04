@@ -1,4 +1,4 @@
-# 📘 Usage Guide - forecast_close_final_plus.py
+# 📘 Usage Guide
 
 ## Step 1: Forecast and Print Buy/Hold Recommendation
 ```bash
