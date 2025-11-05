@@ -1,0 +1,48 @@
+.container {
+  background-color: #1e1e1e;
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.metricsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.metricRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.metricRow strong {
+  font-weight: 600;
+}
+
+.title {
+    color: white;
+    font-size: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #9191E9;
+}
+
+.positiveValue {
+  color: #4caf50;
+}
+
+.divider {
+  border: 1px solid #333;
+  margin: 10px 0;
+}
+
+.chartContainer {
+  flex: 1;
+}

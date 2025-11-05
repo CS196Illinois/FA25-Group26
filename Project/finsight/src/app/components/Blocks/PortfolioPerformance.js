@@ -1,6 +1,7 @@
 "use client";
 
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
+import styles from "./Portfolio.module.css";
 
 export default function PortfolioPerformance() {
   // Fake portfolio performance data
@@ -13,49 +14,30 @@ export default function PortfolioPerformance() {
   ];
 
   return (
-    <div
-      style={{
-        backgroundColor: "#1e1e1e",
-        color: "white",
-        padding: "20px",
-        borderRadius: "12px",
-        boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
-        height: "400px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-      }}
-    >
-      {/* Top half: Portfolio metrics (3 rows, left/right aligned) */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-          marginBottom: "10px",
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+    <div className={styles.container}>
+      <h2 className={styles.title}>Portfolio Performance</h2>
+      <div className={styles.metricsContainer}>
+        <div className={styles.metricRow}>
           <strong>Today's Return:</strong>
-          <span style={{ color: "#4caf50" }}>+0.55%</span>
+          <span className={styles.positiveValue}>+0.55%</span>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div className={styles.metricRow}>
           <strong>Sharpe Ratio:</strong>
           <span>0.85</span>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div className={styles.metricRow}>
           <strong>Volatility:</strong>
           <span>12.5%</span>
         </div>
       </div>
 
-      {/* Optional divider */}
-      <hr style={{ border: "1px solid #333", margin: "10px 0" }} />
+      {/* Divider */}
+      <hr className={styles.divider} />
 
       {/* Bottom half: Line Chart */}
-      <div style={{ flex: 1 }}>
+      <div className={styles.chartContainer}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}
