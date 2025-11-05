@@ -1,0 +1,61 @@
+.mlContainer {
+  background-color: transparent;
+  border-radius: 8px;
+  padding: 13px;
+  border: none;
+}
+
+.mlTitle {
+  color: white;
+  font-size: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #9191E9;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.mlTable {
+  width: 100%;
+  border-collapse: collapse;
+  color: white;
+}
+
+.mlTable thead th {
+  text-align: left;
+  padding: 12px;
+  color: white;
+  font-weight: 500;
+  border-bottom: 1px solid #333;
+}
+
+.mlTable tbody td {
+  padding: 12px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.mlTable tbody tr:hover {
+  background-color: #252525;
+}
+
+.mlTable thead th:nth-child(2),
+.mlTable tbody td:nth-child(2) {
+  text-align: center;
+}
+
+.mlTable thead th:nth-child(3),
+.mlTable tbody td:nth-child(3) {
+  text-align: right;
+}
+
+.positive {
+  color: #10b981;
+  font-weight: bold;
+}
+
+.negative {
+  color: #ef4444;
+  font-weight: bold;
+}
