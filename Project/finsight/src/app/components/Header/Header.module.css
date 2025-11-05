@@ -1,0 +1,77 @@
+.header {
+  background-color: #0a0a0a;
+  transition: background-color 0.3s ease;
+  color: white;
+  padding: 16px 32px;
+  border-bottom: 1px solid #333;
+  position: sticky; 
+  top: 0;
+  z-index: 1000;
+}
+
+/* Flex container for everything inside the header */
+.container {
+  display: flex;
+  align-items: center;     
+  justify-content: space-between;
+  gap: 24px;            
+}
+
+
+
+.website h1 {
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.website:hover {
+  color: #9191E9;
+}
+
+/* Navigation section */
+.nav {
+  display: flex;
+  gap: 24px;               
+  flex: 1;                 
+  justify-content: center; 
+}
+
+
+.nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+
+.nav a:hover {
+  color: #9191E9;
+}
+
+
+.searchBar input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  background-color: #1e1e1e;
+  color: white;
+  width: 180px;
+}
+
+
+.searchBar input::placeholder {
+  color: #aaa;
+}
+
+.searchBar input::placeholder {
+  color: #aaa;
+}
+
+/* Right side logo */
+.logo {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #bbb;
+}
