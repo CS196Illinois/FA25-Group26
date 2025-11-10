@@ -17,6 +17,11 @@
     overflow-x: auto;
 }
 
+.tableWrapper::-webkit-scrollbar {
+    display: none; 
+}
+
+
 .sentimentTable {
     width: 100%;
     border-collapse: collapse;
