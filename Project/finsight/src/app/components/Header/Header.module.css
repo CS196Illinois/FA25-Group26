@@ -17,7 +17,9 @@
   gap: 24px;            
 }
 
-
+.website h1 {
+    cursor: pointer;
+}
 
 .website h1 {
   font-size: 1.8rem;

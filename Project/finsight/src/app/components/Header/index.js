@@ -1,25 +1,28 @@
 import styles from './Header.module.css';
+import Link from 'next/link';
 
 export default function Header() {
     return (
         <header className={styles.header}>
             <div className={styles.container}>
                 <div className={styles.website}>
-                    <h1>FinSight</h1>
+                    <Link href="/">
+                        <h1>FinSight</h1>
+                    </Link>
                 </div>
 
                 <nav className={styles.nav}>
-                    <a href="/About">About</a>
-                    <a href="/portfolio-tracker">Portfolio Tracker</a>
-                    <a href="/model-insights">Model Insights</a>
+                    <Link href="/about">About</Link>
+                    <Link href="/portfolio-tracker">Portfolio Tracker</Link>
+                    <Link href="/model-insights">Model Insights</Link>
                 </nav>
 
                 <div className={styles.searchBar}>
-                    <input type ="text" placeholder="Search" />
+                    <input type="text" placeholder="Search" />
                 </div>
 
                 <div className={styles.logo}>
-                Logo
+                    Logo
                 </div>
             </div>
         </header>
