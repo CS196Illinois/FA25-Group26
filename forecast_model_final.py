@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
 import argparse
 import json
+from typing import Dict, Any, List
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -13,48 +14,58 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import mean_squared_error
 
-def load_and_prepare(parquet_path):
+
+def load_and_prepare(parquet_path: str) -> pd.DataFrame:
+    """Load parquet data and normalize key columns."""
     df = pd.read_parquet(parquet_path)
     df.columns = [str(c).strip().lower() for c in df.columns]
-    if "timestamp" in df.columns: df = df.rename(columns={"timestamp":"date"})
-    if "symbol" in df.columns:    df = df.rename(columns={"symbol":"ticker"})
+    if "timestamp" in df.columns:
+        df = df.rename(columns={"timestamp": "date"})
+    if "symbol" in df.columns:
+        df = df.rename(columns={"symbol": "ticker"})
     if "date" not in df.columns or "close" not in df.columns:
         raise ValueError({"columns": list(df.columns)})
     if "ticker" not in df.columns:
         df["ticker"] = "UNK"
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
-    df = df.dropna(subset=["date","ticker","close"]).sort_values(["ticker","date"])
+    df = df.dropna(subset=["date", "ticker", "close"]).sort_values(["ticker", "date"])
     return df
 
-def make_supervised(series, n_lags):
+
+def make_supervised(series: pd.Series, n_lags: int):
+    """Convert close series into supervised learning format."""
     df = pd.DataFrame({"y": series.values})
-    for k in range(1, n_lags+1):
+    for k in range(1, n_lags + 1):
         df[f"lag_{k}"] = df["y"].shift(k)
     df = df.dropna().reset_index(drop=True)
-    X = df[[f"lag_{k}" for k in range(1, n_lags+1)]].values
+    X = df[[f"lag_{k}" for k in range(1, n_lags + 1)]].values
     y = df["y"].values
     return X, y
 
-def fit_pipe(X, y):
+
+def fit_pipe(X, y) -> Pipeline:
+    """Fit regression pipeline."""
     pipe = Pipeline([("scaler", StandardScaler()), ("lr", LinearRegression())])
     pipe.fit(X, y)
     return pipe
 
-def forecast_recursive(last_values, model, n_steps):
-    preds = []
+
+def forecast_recursive(last_values: np.ndarray, model: Pipeline, n_steps: int) -> np.ndarray:
+    """Generate multi-step forecasts recursively."""
+    preds: List[float] = []
     buf = list(last_values.astype(float))
     for _ in range(n_steps):
-        x = np.array(buf[-len(last_values):][::-1])  # lag_1=most recent
+        x = np.array(buf[-len(last_values):][::-1])
         yhat = float(model.predict(x.reshape(1, -1))[0])
         preds.append(yhat)
         buf.append(yhat)
     return np.array(preds)
 
+
 def backtest_rmse(close: pd.Series, n_lags: int, n_splits: int = 5) -> float:
-    """TimeSeriesSplit CV to estimate *daily* RMSE for uncertainty."""
+    """Estimate daily RMSE via time-series CV."""
     X, y = make_supervised(close.astype(float), n_lags)
     if len(X) < max(10, n_splits + 5):
-        # Fallback (short history): use std of first differences
         diffs = np.diff(y)
         return float(np.nan_to_num(np.std(diffs), nan=0.0))
     tscv = TimeSeriesSplit(n_splits=n_splits)
@@ -65,12 +76,9 @@ def backtest_rmse(close: pd.Series, n_lags: int, n_splits: int = 5) -> float:
         rmses.append(np.sqrt(mean_squared_error(y[te], pred)))
     return float(np.mean(rmses)) if len(rmses) else 0.0
 
-def evaluate_decision(last_close: float, y_pred: np.ndarray, rmse_day: float, horizon: int) -> dict:
-    """Rules: need >=2 true to BUY.
-       1) R_h > 2 * uncert
-       2) slope > 0 and R_h > 3%
-       3) predicted max drawdown < 2.5%
-    """
+
+def evaluate_decision(last_close: float, y_pred: np.ndarray, rmse_day: float, horizon: int) -> Dict[str, Any]:
+    """Generate a simple trading decision report."""
     R_h = float(y_pred[-1] / last_close - 1.0)
     uncert = float(np.sqrt(horizon) * rmse_day / last_close) if last_close > 0 else 0.0
     slope = float(np.polyfit(np.arange(len(y_pred)), y_pred, 1)[0])
@@ -83,72 +91,110 @@ def evaluate_decision(last_close: float, y_pred: np.ndarray, rmse_day: float, ho
     cond3 = (max_dd_pred < 0.025)
     buy = sum([cond1, cond2, cond3]) >= 2
 
-    # Positioning and risk bands
-    position = float(min(1.0, max(0.0, R_h/(3*uncert)))) if (buy and uncert>0) else 0.0
+    position = float(min(1.0, max(0.0, R_h / (3 * uncert)))) if (buy and uncert > 0) else 0.0
     stop_loss = -uncert
     take_profit = 2 * uncert
 
     return {
         "pred_return_h": R_h,
         "uncert_h": uncert,
-        "signal_to_noise": (R_h/uncert) if uncert>0 else float("inf"),
+        "signal_to_noise": (R_h / uncert) if uncert > 0 else float("inf"),
         "slope_pred": slope,
         "max_drawdown_pred": max_dd_pred,
         "buy": bool(buy),
         "suggested_position_0to1": position,
         "stop_loss_rel": stop_loss,
-        "take_profit_rel": take_profit
+        "take_profit_rel": take_profit,
     }
+
+
+def run_forecast(
+    ticker: str,
+    parquet_path: str = "./stock_data_since_2016.parquet",
+    lags: int = 10,
+    horizon: int = 20,
+    per_rows: int = 5000,
+) -> Dict[str, Any]:
+    """Main callable function for API/frontend use."""
+    df = load_and_prepare(parquet_path)
+
+    if ticker not in set(df["ticker"].unique()):
+        sample = df["ticker"].drop_duplicates().head(20).tolist()
+        raise ValueError(f"ticker '{ticker}' not found. sample: {sample}")
+
+    g = df[df["ticker"] == ticker].copy()
+    if per_rows and per_rows > 0:
+        g = g.tail(per_rows)
+
+    close = g["close"].astype(float)
+    if len(close) <= lags + 5:
+        raise ValueError("not enough history for the chosen lags.")
+
+    X, y = make_supervised(close, lags)
+    pipe = fit_pipe(X, y)
+
+    last_lags = close.tail(lags).values[::-1]
+    preds = forecast_recursive(last_lags, pipe, horizon)
+
+    last_date = pd.to_datetime(g["date"].iloc[-1]).normalize()
+    future_dates = pd.bdate_range(last_date + pd.Timedelta(days=1), periods=horizon)
+
+    rmse_day = backtest_rmse(close, lags)
+    decision_report = evaluate_decision(float(close.iloc[-1]), preds, rmse_day, horizon)
+
+    forecast_list = [
+        {
+            "date": d.isoformat(),
+            "ticker": ticker,
+            "pred_close": float(p),
+        }
+        for d, p in zip(future_dates, preds)
+    ]
+
+    return {
+        "ticker": ticker,
+        "last_close": float(close.iloc[-1]),
+        "pred_last": float(preds[-1]),
+        "horizon": horizon,
+        "lags": lags,
+        "forecast": forecast_list,
+        "decision": decision_report,
+    }
+
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--ticker", required=True, help="symbol in your data, e.g. AAMI / ZWS")
+    ap.add_argument("--ticker", required=True)
     ap.add_argument("--parquet", default="./stock_data_since_2016.parquet")
-    ap.add_argument("--lags", type=int, default=10, help="number of close lags as features")
-    ap.add_argument("--horizon", type=int, default=20, help="forecast steps (business days)")
-    ap.add_argument("--per_rows", type=int, default=5000, help="use last N rows for speed")
+    ap.add_argument("--lags", type=int, default=10)
+    ap.add_argument("--horizon", type=int, default=20)
+    ap.add_argument("--per_rows", type=int, default=5000)
     ap.add_argument("--out_csv", default=None)
-    ap.add_argument("--save_decision_json", default=None,
-                    help="Optional path to save the decision report as JSON (e.g., decision_AAMI.json)")
-    ap.add_argument("--no_plot", action="store_true", help="Disable matplotlib plotting")
+    ap.add_argument("--save_decision_json", default=None)
+    ap.add_argument("--no_plot", action="store_true")
     args = ap.parse_args()
 
-    df = load_and_prepare(args.parquet)
-    if args.ticker not in set(df["ticker"].unique()):
-        sample = df["ticker"].drop_duplicates().head(20).tolist()
-        raise SystemExit(f"ticker '{args.ticker}' not found. sample: {sample}")
+    result = run_forecast(
+        ticker=args.ticker,
+        parquet_path=args.parquet,
+        lags=args.lags,
+        horizon=args.horizon,
+        per_rows=args.per_rows,
+    )
 
-    g = df[df["ticker"] == args.ticker].copy()
-    if args.per_rows and args.per_rows > 0:
-        g = g.tail(args.per_rows)
+    import os
 
-    close = g["close"].astype(float)
-    if len(close) <= args.lags + 5:
-        raise SystemExit("not enough history for the chosen lags.")
-
-    X, y = make_supervised(close, args.lags)
-    pipe = fit_pipe(X, y)
-
-    last_lags = close.tail(args.lags).values[::-1]  # lag_1=most recent
-    preds = forecast_recursive(last_lags, pipe, args.horizon)
-
-    last_date = pd.to_datetime(g["date"].iloc[-1]).normalize()
-    future_dates = pd.bdate_range(last_date + pd.Timedelta(days=1), periods=args.horizon)
-
-    out = pd.DataFrame({"date": future_dates, "ticker": args.ticker, "pred_close": preds})
+    forecast_df = pd.DataFrame(result["forecast"])
     save_path = args.out_csv or f"forecast_{args.ticker}.csv"
-    out.to_csv(save_path, index=False)
-    print(f"Saved forecast -> {save_path}")
-    print(out.head(10).to_string(index=False))
+    forecast_df.to_csv(save_path, index=False)
+    print(f"Saved forecast -> {os.path.abspath(save_path)}")
+    print(forecast_df.head(10).to_string(index=False))
 
-    # --- New: backtest + decision ---
-    rmse_day = backtest_rmse(close, args.lags)
-    report = evaluate_decision(float(close.iloc[-1]), preds, rmse_day, args.horizon)
-
+    report = result["decision"]
     print("\n=== DECISION REPORT ===")
-    print(f"{'ticker':>22}: {args.ticker}")
-    print(f"{'last_close':>22}: {float(close.iloc[-1])}")
-    print(f"{'pred_last':>22}: {float(preds[-1])}")
+    print(f"{'ticker':>22}: {result['ticker']}")
+    print(f"{'last_close':>22}: {result['last_close']}")
+    print(f"{'pred_last':>22}: {result['pred_last']}")
     print(f"{'pred_return_h':>22}: {report['pred_return_h']}")
     print(f"{'uncert_h':>22}: {report['uncert_h']}")
     print(f"{'signal_to_noise':>22}: {report['signal_to_noise']}")
@@ -161,21 +207,34 @@ def main():
 
     if args.save_decision_json:
         with open(args.save_decision_json, "w", encoding="utf-8") as f:
-            json.dump({
-                "ticker": args.ticker,
-                "last_close": float(close.iloc[-1]),
-                "pred_last": float(preds[-1]),
-                **report
-            }, f, ensure_ascii=False, indent=2)
+            json.dump(
+                {
+                    "ticker": result["ticker"],
+                    "last_close": result["last_close"],
+                    "pred_last": result["pred_last"],
+                    **report,
+                },
+                f,
+                ensure_ascii=False,
+                indent=2,
+            )
         print(f"Saved decision JSON -> {args.save_decision_json}")
 
-    # Optional: forecast plot
     if not args.no_plot:
-        plt.figure(figsize=(10,5))
-        plt.plot(out["date"], out["pred_close"], label=f"Forecast({args.ticker})", linewidth=2)
-        plt.title(f"Forecast Close (next {args.horizon} business days) — {args.ticker}")
-        plt.xlabel("Date"); plt.ylabel("Predicted Close"); plt.legend(); plt.tight_layout()
+        plt.figure(figsize=(10, 5))
+        plt.plot(
+            [pd.to_datetime(r["date"]) for r in result["forecast"]],
+            [r["pred_close"] for r in result["forecast"]],
+            label=f"Forecast({result['ticker']})",
+            linewidth=2,
+        )
+        plt.title(f"Forecast Close (next {result['horizon']} business days) — {result['ticker']}")
+        plt.xlabel("Date")
+        plt.ylabel("Predicted Close")
+        plt.legend()
+        plt.tight_layout()
         plt.show()
+
 
 if __name__ == "__main__":
     main()
