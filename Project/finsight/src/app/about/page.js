@@ -1,6 +1,6 @@
 export default function About() {
     return (
-        <div style={{ padding: '2rem' }}>
+        <div style={{ padding: '2rem' , color: 'white'}}>
             <h1>About FinSight</h1>
             <p>FinSight is a quantitative portfolio management platform that combines multiple ML models for financial analysis.</p>
             <h2>Features:</h2>
