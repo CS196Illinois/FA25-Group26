@@ -1,5 +1,7 @@
+import Image from 'next/image';
 import styles from './Header.module.css';
 import Link from 'next/link';
+import logoImageSource from './finFinal.png';
 
 export default function Header() {
     return (
@@ -22,7 +24,12 @@ export default function Header() {
                 </div>
 
                 <div className={styles.logo}>
-                    Logo
+                    <Image 
+                        src={logoImageSource}   
+                        alt="FinSight Logo"
+                        width={60}                // Adjust size here
+                        height={60}               // Adjust size here
+                    />
                 </div>
             </div>
         </header>
