@@ -4,8 +4,9 @@
   height: 100vh;
 }
 
+
 .column_middle {
-  flex: 1;
+  flex: auto;
   padding: 20px;
 }
 

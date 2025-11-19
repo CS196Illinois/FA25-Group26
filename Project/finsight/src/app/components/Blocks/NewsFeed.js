@@ -1,75 +1,121 @@
+"use client";
+
+import { useState, useEffect } from 'react';
+import { getNewsSentiment } from '../../lib/api';
 import styles from './NewsFeed.module.css';
 
-const mockNewsData = [
-  {
-    id: 1,
-    headline: "S&P 500 hits record high as inflation worries ease.",
-    sentiment: "Bullish",
-    source: "NBC",
-    timestamp: "10 min ago"
-  },
-  {
-    id: 2,
-    headline: "Microsoft (MSFT) stock jumps after surprising Q3 earnings report.",
-    sentiment: "Bullish",
-    source: "Wall Street Journal",
-    timestamp: "2 hrs ago"
-  },
-  {
-    id: 3,
-    headline: "TSLA drops after analyst downgrades valuation based on demand outlook.",
-    sentiment: "Bearish",
-    source: "Social Media Tracker",
-    timestamp: "5 min ago"
-  },
-  {
-    id: 4,
-    headline: "Fed chair signals potential rate pause following latest CPI data release.",
-    sentiment: "Mixed",
-    source: "Reuters",
-    timestamp: "45 sec ago"
-  },
-  {
-    id: 5,
-    headline: "example",
-    sentiment: "Mixed",
-    source: "Reuters",
-    timestamp: "45 sec ago"
-  }
-];
-
 const getSentimentClass = (sentiment) => {
-  if (sentiment === "Bullish") return styles.bullish;
-  if (sentiment === "Bearish") return styles.bearish;
-  if (sentiment === "Mixed") return styles.mixed;
+  if (sentiment === "bullish") return styles.bullish;
+  if (sentiment === "bearish") return styles.bearish;
+  if (sentiment === "neutral") return styles.mixed;
   return '';
 };
 
-export default function NewsFeed() {
+export default function NewsFeed({ ticker = 'SPY' }) {
+  const [newsData, setNewsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Fetch news sentiment from Flask backend
+        const data = await getNewsSentiment(ticker);
+        
+        // Transform the data to match our component structure
+        const transformedNews = data.articles.map((article, index) => ({
+          id: index,
+          headline: article.title,
+          sentiment: article.sentiment.charAt(0).toUpperCase() + article.sentiment.slice(1), // Capitalize first letter
+          source: "Yahoo Finance", // You can parse this from the link if needed
+          timestamp: formatTimestamp(article.published),
+          link: article.link,
+          confidence: article.confidence
+        }));
+
+        setNewsData(transformedNews);
+      } catch (err) {
+        setError('Failed to fetch news');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNews();
+
+    // Optional: Refresh every 10 minutes
+    const interval = setInterval(fetchNews, 600000);
+    return () => clearInterval(interval);
+  }, [ticker]);
+
+  // Helper function to format timestamp
+  const formatTimestamp = (published) => {
+    try {
+      const pubDate = new Date(published);
+      const now = new Date();
+      const diffMs = now - pubDate;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) return "just now";
+      if (diffMins < 60) return `${diffMins} min ago`;
+      if (diffHours < 24) return `${diffHours} hrs ago`;
+      if (diffDays === 1) return "yesterday";
+      return `${diffDays} days ago`;
+    } catch (e) {
+      return published;
+    }
+  };
+
+  if (loading) {
     return (
       <>
-        
-        <h2 className ={styles.title} >News Feed</h2>
-  
-        <div className={styles.newsList}>
-          
-          {mockNewsData.map(item => (
-            <article key={item.id} className={styles.newsItem}>
-              
-              <p className={styles.headline}>{item.headline}</p>
-              
-              <span className={`${styles.sentiment} ${getSentimentClass(item.sentiment)}`}>
-                {item.sentiment}
-              </span>
-              
-              <p className={styles.source}>
-                {item.source} + {item.timestamp}
-              </p>
-              
-            </article>
-          ))}
-        </div>
-        
+        <h2 className={styles.title}>News Feed</h2>
+        <div className={styles.loading}>Loading news...</div>
       </>
     );
   }
+
+  if (error) {
+    return (
+      <>
+        <h2 className={styles.title}>News Feed</h2>
+        <div className={styles.error}>{error}</div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <h2 className={styles.title}>News Feed</h2>
+
+      <div className={styles.newsList}>
+        {newsData.map(item => (
+          <article key={item.id} className={styles.newsItem}>
+            <a 
+              href={item.link} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className={styles.headlineLink}
+            >
+              <p className={styles.headline}>{item.headline}</p>
+            </a>
+            
+            <span className={`${styles.sentiment} ${getSentimentClass(item.sentiment.toLowerCase())}`}>
+              {item.sentiment}
+            </span>
+            
+            <p className={styles.source}>
+              {item.source} • {item.timestamp}
+            </p>
+          </article>
+        ))}
+      </div>
+    </>
+  );
+}

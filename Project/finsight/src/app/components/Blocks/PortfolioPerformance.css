@@ -54,3 +54,13 @@
 .chartWrapper .recharts-cartesian-grid line {
   stroke: #333;
 }
+
+.loading, .error {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+}
+
+.error {
+  color: #f44336;
+}

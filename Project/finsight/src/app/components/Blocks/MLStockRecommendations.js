@@ -1,17 +1,90 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { getDetailedForecast } from '../../lib/api';
 import "./MLStockRecommendations.css";
 
 export default function MLStockRecommendations() {
-  const recommendations = [
-    { symbol: "TSLA", change: "+8.5%", action: "Buy" },
-    { symbol: "MSFT", change: "+5%", action: "Hold" },
-    { symbol: "AAPL", change: "-3.4%", action: "Sell" },
-    { symbol: "JPM", change: "-11.5%", action: "Sell" },
-    { symbol: "NVDA", change: "+3.1%", action: "Hold" },
-    { symbol: "BABA", change: "-7.4%", action: "Sell" },
-    { symbol: "ADBE", change: "-1.1%", action: "Hold" },
-    { symbol: "CAT", change: "+9.7%", action: "Buy" },
-  ];
+  const [recommendations, setRecommendations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // List of stocks to analyze
+  const stocksToAnalyze = ["TSLA", "MSFT", "AAPL", "JPM", "NVDA", "BABA", "ADBE", "CAT"];
+
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Fetch forecast data for all stocks in parallel
+        const promises = stocksToAnalyze.map(ticker =>
+          getDetailedForecast(ticker, 5, 10) // 5 day forecast
+        );
+
+        const results = await Promise.all(promises);
+
+        // Transform the data
+        const recs = results.map((result, idx) => {
+          const decision = result.decision;
+          const predictedReturn = decision.pred_return_h;
+          const buySignal = decision.buy;
+
+          // Determine action based on ML model signals
+          let action;
+          if (buySignal && predictedReturn > 0.02) {
+            action = "Buy";
+          } else if (predictedReturn < -0.02) {
+            action = "Sell";
+          } else {
+            action = "Hold";
+          }
+
+          return {
+            symbol: stocksToAnalyze[idx],
+            change: `${predictedReturn >= 0 ? '+' : ''}${(predictedReturn * 100).toFixed(1)}%`,
+            action: action,
+            predictedReturn: predictedReturn
+          };
+        });
+
+        // Sort by predicted return (best opportunities first)
+        recs.sort((a, b) => b.predictedReturn - a.predictedReturn);
+
+        setRecommendations(recs);
+      } catch (err) {
+        setError("Failed to fetch recommendations");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecommendations();
+
+    // Optional: Refresh every 5 minutes
+    const interval = setInterval(fetchRecommendations, 300000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="mlContainer">
+        <h2 className="mlTitle">ML Stock Recommendations</h2>
+        <div className="loading">Analyzing stocks...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mlContainer">
+        <h2 className="mlTitle">ML Stock Recommendations</h2>
+        <div className="error">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="mlContainer">

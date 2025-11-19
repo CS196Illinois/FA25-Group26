@@ -59,3 +59,13 @@
   color: #ef4444;
   font-weight: bold;
 }
+
+.loading, .error {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+}
+
+.error {
+  color: #f44336;
+}

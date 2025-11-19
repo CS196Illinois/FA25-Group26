@@ -51,3 +51,13 @@
   .mixed {
     color: #FFEB3B;
   }
+
+  .loading, .error {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+}
+
+.error {
+  color: #f44336;
+}
