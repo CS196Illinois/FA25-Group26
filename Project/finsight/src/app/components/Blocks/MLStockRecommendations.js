@@ -21,33 +21,41 @@ export default function MLStockRecommendations() {
         // Fetch forecast data for all stocks in parallel
         const promises = stocksToAnalyze.map(ticker =>
           getDetailedForecast(ticker, 5, 10) // 5 day forecast
+            .catch(err => {
+              console.log(`Skipping ${ticker}: ${err.message}`);
+              return null; // Return null for failed requests
+            })
         );
 
         const results = await Promise.all(promises);
 
-        // Transform the data
-        const recs = results.map((result, idx) => {
-          const decision = result.decision;
-          const predictedReturn = decision.pred_return_h;
-          const buySignal = decision.buy;
+        // Transform the data, filtering out nulls (failed requests)
+        const recs = results
+          .map((result, idx) => {
+            if (!result) return null; // Skip failed requests
 
-          // Determine action based on ML model signals
-          let action;
-          if (buySignal && predictedReturn > 0.02) {
-            action = "Buy";
-          } else if (predictedReturn < -0.02) {
-            action = "Sell";
-          } else {
-            action = "Hold";
-          }
+            const decision = result.decision;
+            const predictedReturn = decision.pred_return_h;
+            const buySignal = decision.buy;
 
-          return {
-            symbol: stocksToAnalyze[idx],
-            change: `${predictedReturn >= 0 ? '+' : ''}${(predictedReturn * 100).toFixed(1)}%`,
-            action: action,
-            predictedReturn: predictedReturn
-          };
-        });
+            // Determine action based on ML model signals
+            let action;
+            if (buySignal && predictedReturn > 0.02) {
+              action = "Buy";
+            } else if (predictedReturn < -0.02) {
+              action = "Sell";
+            } else {
+              action = "Hold";
+            }
+
+            return {
+              symbol: stocksToAnalyze[idx],
+              change: `${predictedReturn >= 0 ? '+' : ''}${(predictedReturn * 100).toFixed(1)}%`,
+              action: action,
+              predictedReturn: predictedReturn
+            };
+          })
+          .filter(rec => rec !== null); // Remove nulls
 
         // Sort by predicted return (best opportunities first)
         recs.sort((a, b) => b.predictedReturn - a.predictedReturn);

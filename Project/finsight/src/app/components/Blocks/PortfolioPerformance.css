@@ -12,9 +12,50 @@
 .title {
   color: white;
   font-size: 20px;
+  margin: 0;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin-bottom: 15px;
   padding-bottom: 10px;
   border-bottom: 2px solid #9191e9;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stockSelector {
+  background-color: #2a2a2a;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.stockSelector:hover {
+  border-color: #9191e9;
+  background-color: #333;
+}
+
+.stockSelector:focus {
+  border-color: #9191e9;
+  box-shadow: 0 0 0 2px rgba(145, 145, 233, 0.2);
+}
+
+.timeSelector {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .metrics {
@@ -43,6 +84,37 @@
 .positiveValue {
   color: #10b981;
   font-weight: bold;
+}
+
+.negativeValue {
+  color: #f44336;
+  font-weight: bold;
+}
+
+.button, .activeButton {
+  background-color: #2a2a2a;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  background-color: #333;
+  border-color: #9191e9;
+}
+
+.activeButton {
+  background-color: #9191e9;
+  border-color: #9191e9;
+  font-weight: 600;
+}
+
+.activeButton:hover {
+  background-color: #7a7ad1;
 }
 
 .chartWrapper {

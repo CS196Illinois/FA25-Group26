@@ -166,7 +166,7 @@ def get_stock_data():
             # This will analyze historical data and generate predictions
             forecast_result = run_forecast(
                 ticker=ticker,
-                parquet_path='./stock_data_since_2016.parquet',
+                parquet_path='stock_data_since_2016.parquet',
                 lags=10,          # Use 10 previous days for prediction
                 horizon=5,        # Predict 5 days ahead for quick trend assessment
                 per_rows=5000     # Use last 5000 rows of historical data
@@ -295,13 +295,18 @@ def get_detailed_forecast():
 
         # ===== STEP 2: RUN FORECAST MODEL =====
         # Run the advanced forecast model
-        forecast_result = run_forecast(
-            ticker=ticker,
-            parquet_path='./stock_data_since_2016.parquet',
-            lags=lags,
-            horizon=horizon,
-            per_rows=5000
-        )
+        try:
+            forecast_result = run_forecast(
+                ticker=ticker,
+                parquet_path='stock_data_since_2016.parquet',
+                lags=lags,
+                horizon=horizon,
+                per_rows=5000
+            )
+        except Exception as forecast_error:
+            # If forecast fails, return error with 404
+            print(f"Forecast error for {ticker}: {forecast_error}")
+            return jsonify({'error': f'No data available for ticker {ticker}'}), 404
 
         # ===== STEP 3: BUILD RESPONSE =====
         # Add timestamp to the response
@@ -327,6 +332,7 @@ def get_detailed_forecast():
 
     except Exception as e:
         # Handle unexpected errors
+        print(f"Unexpected error in forecast endpoint: {e}")
         return jsonify({'error': str(e)}), 500
 
 # ============================================================================
@@ -415,13 +421,21 @@ def get_news_sentiment():
         for entry in feed.entries[:10]:
             # Filter articles by keyword if provided
             # Skip articles that don't mention the keyword in their summary
-            if keyword and keyword.lower() not in entry.summary.lower():
+            summary_text = entry.get('summary', entry.title)
+            if keyword and keyword.lower() not in summary_text.lower():
                 continue
 
             try:
                 # Run the sentiment analysis model on the article summary
                 # Returns: [{'label': 'POS'/'NEG'/'NEU', 'score': 0.0-1.0}]
-                sentiment = pipe(entry.summary)[0]
+                # Use title if summary is empty or too short
+                text_to_analyze = summary_text if len(summary_text) > 20 else entry.title
+
+                # Truncate text to avoid model errors (max 512 tokens)
+                if len(text_to_analyze) > 500:
+                    text_to_analyze = text_to_analyze[:500]
+
+                sentiment = pipe(text_to_analyze)[0]
 
                 # ===== MAP MODEL OUTPUT TO BULLISH/BEARISH =====
                 # The model returns 'POS', 'NEG', or 'NEU' labels
@@ -450,9 +464,9 @@ def get_news_sentiment():
                 articles.append({
                     'title': entry.title,  # Article headline
                     'link': entry.link,  # URL to full article
-                    'published': entry.published,  # Publication date/time
+                    'published': entry.get('published', 'Unknown'),  # Publication date/time
                     # Truncate summary to 200 characters to keep response size manageable
-                    'summary': entry.summary[:200] + '...' if len(entry.summary) > 200 else entry.summary,
+                    'summary': summary_text[:200] + '...' if len(summary_text) > 200 else summary_text,
                     'sentiment': sentiment_label,  # bullish/bearish/neutral
                     'confidence': round(sentiment['score'], 3)  # Model's confidence (0-1)
                 })
@@ -461,6 +475,8 @@ def get_news_sentiment():
                 # If there's an error processing this article, log it and continue
                 # This ensures one bad article doesn't break the entire request
                 print(f"Error processing article: {e}")
+                import traceback
+                traceback.print_exc()
                 continue
 
         # ===== STEP 5: CALCULATE OVERALL SENTIMENT =====
@@ -659,15 +675,15 @@ if __name__ == '__main__':
     - debug=True: Enables debug mode which provides detailed error messages
                   and auto-reloads the server when code changes
                   WARNING: Never use debug=True in production!
-    - port=5000: The server will listen on http://localhost:5000
+    - port=5001: The server will listen on http://localhost:5001
 
     To run this server:
         python server.py
 
     The server will start and you can make requests to:
-        http://localhost:5000/api/stock/predict
-        http://localhost:5000/api/news/sentiment
-        http://localhost:5000/api/portfolio
-        http://localhost:5000/api/health
+        http://localhost:5001/api/stock/predict
+        http://localhost:5001/api/news/sentiment
+        http://localhost:5001/api/portfolio
+        http://localhost:5001/api/health
     """
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)

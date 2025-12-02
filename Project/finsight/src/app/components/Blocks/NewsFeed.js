@@ -11,7 +11,7 @@ const getSentimentClass = (sentiment) => {
   return '';
 };
 
-export default function NewsFeed({ ticker = 'SPY' }) {
+export default function NewsFeed({ ticker = 'AAPL' }) {
   const [newsData, setNewsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
